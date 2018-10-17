@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    
+</head>
+
+<body>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            
+            // call funvtiob=n to display once
+            updateCar();
+            
+//             to recall the display because if add new item in DB to display it
+            setInterval(function(){
+                updateCar();
+            },1000);
+            
+            // display car from DB with ajax
+            function updateCar(){
+                $.ajax({
+
+                    url: 'display_cars.php',
+                    type: 'POST',
+                    success: function(show_cars){
+                        if(!show_cars.error){
+                            $('#show-cars').html(show_cars);   
+                        }
+                    },
+
+                });
+            }
+            
+            // search the car in database with ajax
+            $('#search').keyup(function() {
+
+                var search = $('#search').val();
+
+                if (search != '') {
+
+                    $.ajax({
+
+                        url: 'search.php',
+                        data: {
+                            search: search
+                        },
+                        type: 'POST',
+                        success: function(data) {
+                            if (!data.error) {
+                                $('#result').html(data);
+                            }
+                        },
+                    });
+                }
+
+            });
+            
+            // add cars to database with ajax
+            $('#add-car-form').submit(function(evt){
+               
+                evt.preventDefault();
+                
+                var postData = $(this).serialize();
+                
+                var url = $(this).attr('action');
+                
+                $.post(url , postData , function(car_table_data){
+                    
+                    $('#car-reault').html(car_table_data);
+//                    $('#car_name').val('');
+                    $('#add-car-form')[0].reset();
+                });
+                
+            });
+ 
+        });
+
+    </script>
+
+    <div id="container" class="col-xs-6 col-xs-offset-3">
+       
+        <div class="row">
+       
+            <h2>Search DataBase</h2>
+
+            <input type="text" name="search" id="search" placeholder="Search out inventory" class="form-control">
+    
+            <br>
+        
+            <br>
+       
+             <h2 class="bg-success" id="result"></h2>
+        
+        </div>
+
+        <div class="row">
+
+            <form method="post" action="addCar.php" id="add-car-form" >
+                
+                <div class="form-group">
+                    
+                    <label for="car_name">Add new Car</label>
+                    
+                    <input type="text" id="car_name" name="car_name" class="form-control" required>
+
+                </div>
+                
+                <div class="form-group">
+                   
+                    <input type="submit" class="btn btn-primary" value="Add Car">
+                    
+                </div>
+            </form>
+            
+            <div class="col-xs-6">
+               
+                <div id="car-reault" class="bg-success"></div>
+                
+            </div>
+            
+        </div>
+
+        <div class="row">
+           
+            <div class="col-xs-6">
+               
+                <table class="table">
+                   
+                    <thead>
+                       
+                        <tr>
+                           
+                            <th>Id</th>
+                            
+                            <th>Name</th>
+                            
+                        </tr>
+                        
+                    </thead>
+                    
+                    <tbody id="show-cars"></tbody>
+                    
+                </table>
+                
+            </div>
+            
+             <div class="col-xs-6">
+           
+                <div id="action-container"></div>
+                
+            </div>
+            
+        </div>
+   
+    </div>
+
+</body>
+
+</html>
